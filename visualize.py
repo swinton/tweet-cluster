@@ -3,21 +3,35 @@
 import csv
 import os
 import sys
-import json
 import random
 import pdb
 
-from sentence_similarity import sentence_similarity
+try:
+    import json
+except ImportError:
+    import simplejson as json
+
+from sentence_similarity import sentence_similarity, stemify, tokenify
 from clusters import scaledown, draw2d
 
 def distances(documents, distance_fn=sentence_similarity):
+    # Progress indicator
+    todo = len(documents) * len(documents)
+    done = 0.0
+
     # Initialize 2d matrix
     matrix = [[0.0 for j in xrange(len(documents))] 
                  for i in xrange(len(documents))]
 
+    documents = [stemify(tokenify(doc)) for doc in documents]
+
     # Populate matrix with distances
     for i in xrange(len(documents)):
         for j in xrange(len(documents)):
+            done += 1.0
+            if done % 100 == 0:
+                print >> sys.stderr, "\r%.2f%% complete" % (100 * done / todo),
+
             d1 = documents[i]
             d2 = documents[j]
 

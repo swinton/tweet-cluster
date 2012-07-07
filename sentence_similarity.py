@@ -10,6 +10,8 @@ from nltk.tokenize import word_tokenize, wordpunct_tokenize, sent_tokenize
 
 import ttp
 
+from decorators import memoized
+
 stops = [stop.lower() for stop in stopwords.words('english')]
 stemmer = porter.PorterStemmer()
 parser = ttp.Parser()
@@ -41,28 +43,29 @@ def token_frequency(s, t):
     regex = r'\b{0}\b'.format(t)
     return len(re.findall(regex, s))
 
+@memoized
 def num_docs_containing_token(t, documents):
     return len([doc for doc in documents if t in doc])
 
 def sentence_similarity(s1, s2, documents=None):
     # Shared vocabulary between s1 and s2
-    shared_vocab = set(stemify(tokenify("\n".join((s1, s2)))))
+    # shared_vocab = set(stemify(tokenify("\n".join((s1, s2)))))
+    shared_vocab = set(s1 + s2)
 
     # Vocabulary across all documents
     documents = documents or []
-    documents = [stemify(tokenify(doc)) for doc in documents]
 
     # Tokens
-    s1_tokens = tokenify(s1)
-    s2_tokens = tokenify(s2)
+    # s1_tokens = tokenify(s1)
+    # s2_tokens = tokenify(s2)
 
     # Stems
-    s1_stems = stemify(s1_tokens)
-    s2_stems = stemify(s2_tokens)
+    # s1_stems = stemify(s1_tokens)
+    # s2_stems = stemify(s2_tokens)
 
     # Frequencies
-    s1_frequencies = dict([(t, s1_stems.count(t)) for t in s1_stems])
-    s2_frequencies = dict([(t, s2_stems.count(t)) for t in s2_stems])
+    s1_frequencies = dict([(t, s1.count(t)) for t in s1])
+    s2_frequencies = dict([(t, s2.count(t)) for t in s2])
 
     # 
     # Instead of using frequencies, use TF*IDF instead
@@ -74,8 +77,8 @@ def sentence_similarity(s1, s2, documents=None):
     # Then, the inverse document frequency is calculated as log(10 000 000 / 1 000) = 4. 
     # The tf*idf score is the product of these quantities: 0.03 * 4 = 0.12.
     # 
-    s1_tf = [(t, f / float(len(s1_stems))) for t, f in s1_frequencies.items()]
-    s2_tf = [(t, f / float(len(s2_stems))) for t, f in s2_frequencies.items()]
+    s1_tf = [(t, f / float(len(s1))) for t, f in s1_frequencies.items()]
+    s2_tf = [(t, f / float(len(s2))) for t, f in s2_frequencies.items()]
 
     s1_tf_idf = dict([(t, f * (math.log10(float(len(documents)) / num_docs_containing_token(t, documents)))) for t, f in s1_tf])
     s2_tf_idf = dict([(t, f * (math.log10(float(len(documents)) / num_docs_containing_token(t, documents)))) for t, f in s2_tf])
