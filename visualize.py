@@ -58,7 +58,7 @@ def visualize(tweets, jpeg="tweets.jpg"):
 
     coords = scaledown(matrix)
 
-    draw2d(coords, ids, jpeg=jpeg)
+    # draw2d(coords, ids, jpeg=jpeg)
 
     return ids, matrix, coords
 

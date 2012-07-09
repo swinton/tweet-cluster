@@ -31,7 +31,7 @@ def tokenify(s):
     for entity in entities:
         s = s.replace(entity, "")
 
-    return [t.lower() for t in wordpunct_tokenize(s) if t not in stops] + entities
+    return [t.lower() for t in wordpunct_tokenize(s) if t not in stops] + [entity for entity in entities if not entity.startswith("@")]
 
 def stemify(s):
     return [stemmer.stem(t) for t in s]
