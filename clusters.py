@@ -247,9 +247,13 @@ def scaledown(data,distance=pearson,rate=0.01):
     for k in range(n):
       for j in range(n):
         if j==k: continue
-        # The error is percent difference between the distances
-        errorterm=(fakedist[j][k]-realdist[j][k])/realdist[j][k]
-        
+
+        if realdist[j][k]==0:
+          errorterm=1
+        else:
+          # The error is percent difference between the distances
+          errorterm=(fakedist[j][k]-realdist[j][k])/realdist[j][k]
+          
         # Each point needs to be moved away from or towards the other
         # point in proportion to how much error it has
         grad[k][0]+=((loc[k][0]-loc[j][0])/fakedist[j][k])*errorterm

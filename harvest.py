@@ -7,10 +7,10 @@ import twitter_utils
 
 t = twitter_utils.login()
 
-def harvest():
+def harvest(screen_name):
     max_id = None
     statuses = []
-    kwargs = dict(screen_name="O2", count=200)
+    kwargs = dict(screen_name=screen_name, count=200)
 
     while True:
         if max_id:
@@ -26,9 +26,7 @@ def harvest():
         
         print >> sys.stderr, len(statuses), "...",
 
-    fp = open("statuses.json", "wb")
-    json.dump(statuses, fp)
-    fp.close()
+    return statuses
 
 def pairings():
     statuses = json.load(open("o2-statuses.json"))
@@ -47,4 +45,5 @@ def pairings():
     fp.close()
 
 if __name__ == "__main__":
-    pairings()
+    statuses = harvest(*sys.argv[1:])
+    sys.stdout.write(json.dumps(statuses))
